@@ -9,6 +9,8 @@ od = ObjectDetection()
 video = cv2.VideoCapture('C:\\Users\\Roberto\\Documents\\Udemy_Object_Detection\\object-counting\\Obj_Counting_2\\angeles.mp4')
 
 count = 0
+# guardar todos los centros para poder compararlos con los centros del frame siguiente
+center_points = []
 
 while True:
     ret, frame = video.read()
@@ -25,11 +27,14 @@ while True:
         # para poder contarlos, cogemos el centro del box
         cx = int((x+x+w) / 2)
         cy = int((y+y+h) / 2)
+        center_points.append((cx,cy))
         print("Frame Nº", count, "BOX",x, y, w, h) # mostrando los boxes
         # para dibujar un rectangulo necesitamos top left point y bot right point
         cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), thickness=2)
         # dibujamos un ciruclo donde se situe el centro del objeto
-        cv2.circle(frame,(cx,cy),5, (0,0,255), -1)
+
+        for points in center_points:
+            cv2.circle(frame, points, 5, (0,0,255), -1)
 
     cv2.imshow('video', frame)
 
