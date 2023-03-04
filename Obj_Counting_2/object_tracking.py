@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-
+import math
 from object_detection import ObjectDetection
 
 # Initialize Object Detection
@@ -10,6 +10,9 @@ video = cv2.VideoCapture('C:\\Users\\Roberto\\Documents\\Udemy_Object_Detection\
 
 count = 0
 prev_center_points = []
+
+tracking_objects = {}
+track_id = 0
 
 while True:
     ret, frame = video.read()
@@ -35,11 +38,35 @@ while True:
         #print("Frame Nº", count, "BOX",x, y, w, h) # mostrando los boxes
         # para dibujar un rectangulo necesitamos top left point y bot right point
         cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), thickness=2)
+        # dibujar un circulo en el centro de los bounding boxes
+        #cv2.circle(frame, points, 5, (0,0,255), -1)
 
-        #for points in curr_center_points:
-             
-            #cv2.circle(frame, points, 5, (0,0,255), -1)
 
+    # Comparamos al comienzo del video, el actual y el previo frame
+    if count <= 2:
+        for pt in curr_center_points:
+                for pt2 in prev_center_points:
+                    # calculamos la distancia entre los puntos
+                    distance = math.hypot(pt2[0] - pt[0], pt2[1] - pt[1])
+
+                    if distance < 20:
+                        tracking_objects[track_id] = pt
+                        track_id += 1
+    else:
+        for pt in curr_center_points:
+            for object_id, pt2 in tracking_objects.items():
+
+                # calculamos la distancia entre los puntos
+                distance = math.hypot(pt2[0] - pt[0], pt2[1] - pt[1])
+                # update object position
+                if distance < 20:
+                    tracking_objects[object_id] = pt
+
+    for object_id, pt in tracking_objects.items():
+        cv2.circle(frame, pt, 5, (0,0,255), -1)
+        cv2.putText(frame, str(object_id), (pt[0], pt[1] - 7), 0, 1, (0,0,255), 2) # frame, text, position of the text, font type, size, color, thickness
+
+    print("Tracking objects", tracking_objects)
 
     print("CURR_FRAME", curr_center_points)
     print("PREV_FRAME", prev_center_points)
