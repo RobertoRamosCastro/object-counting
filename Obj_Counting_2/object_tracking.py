@@ -55,20 +55,29 @@ while True:
     else:
         # creamos la copia para poder borarlo datos del diccionario mienstras estamos recorriendo la copia
         tracking_objects_copy = tracking_objects.copy()
+        curr_center_points_copy = curr_center_points.copy()
+
         for object_id, pt2 in tracking_objects_copy.items():
             object_exists = False
-            for pt in curr_center_points:
+            for pt in curr_center_points_copy:
                 # calculamos la distancia entre los puntos
                 distance = math.hypot(pt2[0] - pt[0], pt2[1] - pt[1])
                 # update object position
                 if distance < 20:
                     tracking_objects[object_id] = pt
                     object_exists = True
+                    if pt in curr_center_points:
+                        curr_center_points.remove(pt) # los puntos que quedna seran los nuevos puntos
                     continue # si encotnramos el id, pasamos al siugiente
             
-            # remove de ID
+            # remove de ID lost
             if not object_exists:
                 tracking_objects.pop(object_id)
+
+        # Agregar nuevos ID's
+        for pt in curr_center_points:
+            tracking_objects[track_id] = pt
+            track_id += 1
 
     for object_id, pt in tracking_objects.items():
         cv2.circle(frame, pt, 5, (0,0,255), -1)
@@ -76,8 +85,7 @@ while True:
 
     print("Tracking objects", tracking_objects)
 
-    print("CURR_FRAME", curr_center_points)
-    print("PREV_FRAME", prev_center_points)
+    print("CURR_FRAME LEFT POINTS", curr_center_points)
 
     cv2.imshow('video', frame)
 
@@ -86,7 +94,7 @@ while True:
     prev_center_points = curr_center_points.copy()
 
     # si se presiona la tecla 'Esc' sale del bucle
-    key = cv2.waitKey(0)
+    key = cv2.waitKey(1)
     if key == 27:
         break
 
