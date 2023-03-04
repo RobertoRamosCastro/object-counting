@@ -53,14 +53,22 @@ while True:
                         tracking_objects[track_id] = pt
                         track_id += 1
     else:
-        for pt in curr_center_points:
-            for object_id, pt2 in tracking_objects.items():
-
+        # creamos la copia para poder borarlo datos del diccionario mienstras estamos recorriendo la copia
+        tracking_objects_copy = tracking_objects.copy()
+        for object_id, pt2 in tracking_objects_copy.items():
+            object_exists = False
+            for pt in curr_center_points:
                 # calculamos la distancia entre los puntos
                 distance = math.hypot(pt2[0] - pt[0], pt2[1] - pt[1])
                 # update object position
                 if distance < 20:
                     tracking_objects[object_id] = pt
+                    object_exists = True
+                    continue # si encotnramos el id, pasamos al siugiente
+            
+            # remove de ID
+            if not object_exists:
+                tracking_objects.pop(object_id)
 
     for object_id, pt in tracking_objects.items():
         cv2.circle(frame, pt, 5, (0,0,255), -1)
