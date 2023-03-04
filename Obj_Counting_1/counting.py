@@ -6,12 +6,13 @@ import supervision as sv
 
 import numpy as np
 
-ZONE_POLYGON = np.array([
+"""ZONE_POLYGON = np.array([
     [0, 300],
     [1200// 2, 300],
     [1500 // 2, 720],
     [0, 720] 
-])
+])"""
+
 
 # creamos funcion para recibir argumentos
 def parse_arguments() -> argparse.Namespace:
@@ -29,7 +30,17 @@ def main():
     args = parse_arguments()
 
     # leemos el video
-    cap = cv2.VideoCapture('nuevo_video.mp4')
+    cap = cv2.VideoCapture('nuevo_video_angeles.mp4')
+
+    # Obtiene la resolución actual del video
+    frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+    ZONE_POLYGON = np.array([
+    [0,0],
+    [frame_height, 0],
+    [frame_height, frame_width],
+    [0, frame_width]])
 
     # creamos el modelo de YOLO
     model = YOLO("yolov8l.pt")
