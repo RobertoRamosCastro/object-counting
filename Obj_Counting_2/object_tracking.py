@@ -9,14 +9,18 @@ od = ObjectDetection()
 video = cv2.VideoCapture('C:\\Users\\Roberto\\Documents\\Udemy_Object_Detection\\object-counting\\Obj_Counting_2\\angeles.mp4')
 
 count = 0
-# guardar todos los centros para poder compararlos con los centros del frame siguiente
-center_points = []
+prev_center_points = []
 
 while True:
     ret, frame = video.read()
+
     count += 1
+
     if not ret:
         break
+
+    # guardar todos los centros para poder compararlos con los centros del frame siguiente
+    curr_center_points = []
 
     # Detect objects in frame
     (class_id, scores, boxes) = od.detect(frame)
@@ -27,19 +31,27 @@ while True:
         # para poder contarlos, cogemos el centro del box
         cx = int((x+x+w) / 2)
         cy = int((y+y+h) / 2)
-        center_points.append((cx,cy))
-        print("Frame Nº", count, "BOX",x, y, w, h) # mostrando los boxes
+        curr_center_points.append((cx,cy))
+        #print("Frame Nº", count, "BOX",x, y, w, h) # mostrando los boxes
         # para dibujar un rectangulo necesitamos top left point y bot right point
         cv2.rectangle(frame, (x,y), (x+w,y+h), (0, 255, 0), thickness=2)
-        # dibujamos un ciruclo donde se situe el centro del objeto
 
-        for points in center_points:
-            cv2.circle(frame, points, 5, (0,0,255), -1)
+        #for points in curr_center_points:
+             
+            #cv2.circle(frame, points, 5, (0,0,255), -1)
+
+
+    print("CURR_FRAME", curr_center_points)
+    print("PREV_FRAME", prev_center_points)
 
     cv2.imshow('video', frame)
 
+    # Antes de que se acabe el loop hacemos una copia de las lista de centros
+    # asi posteriormente podemos comparar el current frame y el previous
+    prev_center_points = curr_center_points.copy()
+
     # si se presiona la tecla 'Esc' sale del bucle
-    key = cv2.waitKey(1)
+    key = cv2.waitKey(0)
     if key == 27:
         break
 
